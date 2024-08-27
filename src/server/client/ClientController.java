@@ -1,7 +1,9 @@
 package server.client;
 
+import server.server.ServerController;
+
 /**
- * класс содержащий логику работы клиента
+ * Класс содержащий логику работы клиента
  *
  * @clientView абстракция графического интерфейса
  * @server объект для связи с сервером
@@ -10,28 +12,25 @@ public class ClientController {
     private boolean connected;
     private String name;
     private ClientView clientView;
-    private ServerController server;
+    private ServerController serverController;
 
-    //сеттеры
-    public void setClientView(ClientView clientView) {
+    public ClientController(ClientView clientView, ServerController serverController) {
         this.clientView = clientView;
-    }
-
-    public void setServer(ServerController server) {
-        this.server = server;
+        this.serverController = serverController;
+        clientView.setClientController(this);
     }
 
     /**
      * Метод попытки подключения к серверу. Вызывается из GUI
      * @param name имя пользователя, которым будем подписывать исходящие сообщения
-     * @return ответ от сервера. true, если прошли авторизацию
+     * @return ответ от сервера. Возвращает true, если прошли авторизацию
      */
     public boolean connectToServer(String name) {
         this.name = name;
-        if (server.connectUser(this)){
+        if (serverController.connectUser(this)){
             showOnWindow("Вы успешно подключились!\n");
             connected = true;
-            String log = server.getHistory();
+            String log = serverController.getHistory();
             if (log != null){
                 showOnWindow(log);
             }
@@ -40,6 +39,14 @@ public class ClientController {
             showOnWindow("Подключение не удалось");
             return false;
         }
+    }
+
+    /**
+     * Метод, с помощью которого сервер передает клиенту сообщения
+     * @param text текст переданный от сервера
+     */
+    public void answerFromServer(String text) {
+        showOnWindow(text);
     }
 
     /**
@@ -57,15 +64,7 @@ public class ClientController {
      * Метод отключения от сервера инициализированное клиентом (например закрыто GUI)
      */
     public void disconnectFromServer() {
-        server.disconnectUser(this);
-    }
-
-    /**
-     * Метод, с помощью которого сервер передает клиенту сообщения
-     * @param text текст переданный от сервера
-     */
-    public void answerFromServer(String text) {
-        showOnWindow(text);
+        serverController.disconnectUser(this);
     }
 
     /**
@@ -75,7 +74,7 @@ public class ClientController {
     public void message(String text) {
         if (connected) {
             if (!text.isEmpty()) {
-                server.message(name + ": " + text);
+                serverController.message(name + ": " + text);
             }
         } else {
             showOnWindow("Нет подключения к серверу");
@@ -83,10 +82,18 @@ public class ClientController {
     }
 
     /**
+     * Геттер
+     * @return возвращает имя клиента
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
      * Метод вывода сообщения на GUI
      * @param text текст, который требуется вывести на экран
      */
     private void showOnWindow(String text) {
-        clientView.showMessage(text);
+        clientView.showMessage(text + "\n");
     }
 }

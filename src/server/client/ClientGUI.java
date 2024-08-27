@@ -1,5 +1,7 @@
 package server.client;
 
+import server.client.ClientController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -8,7 +10,7 @@ import java.awt.event.*;
  * Класс описывающий работу графического интерфейса приложения.
  * Является абстракцией GUI
  */
-public class ClientGUI extends JFrame implements ClientView{
+public class ClientGUI extends JFrame implements ClientView {
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
 
@@ -25,9 +27,6 @@ public class ClientGUI extends JFrame implements ClientView{
      */
     private ClientController clientController;
 
-    /**
-     * Конструктор класса
-     */
     public ClientGUI() {
         setting();
         createPanel();
@@ -35,8 +34,12 @@ public class ClientGUI extends JFrame implements ClientView{
         setVisible(true);
     }
 
-    //сеттер
-    public void setClient(ClientController clientController) {
+    /**
+     * Сеттер
+     * @param clientController объект контроллера, описывающий логику поведения
+     */
+    @Override
+    public void setClientController(ClientController clientController) {
         this.clientController = clientController;
     }
 
@@ -47,7 +50,6 @@ public class ClientGUI extends JFrame implements ClientView{
         setSize(WIDTH, HEIGHT);
         setResizable(false);
         setTitle("Chat client");
-//        setLocation(serverWindow.getX() - 500, serverWindow.getY());
         setDefaultCloseOperation(HIDE_ON_CLOSE);
     }
 
@@ -57,7 +59,7 @@ public class ClientGUI extends JFrame implements ClientView{
      */
     @Override
     public void showMessage(String msg) {
-        log.append(msg + "\n");
+        log.append(msg);
     }
 
     /**
@@ -182,7 +184,7 @@ public class ClientGUI extends JFrame implements ClientView{
     protected void processWindowEvent(WindowEvent e) {
         super.processWindowEvent(e);
         if (e.getID() == WindowEvent.WINDOW_CLOSING){
-            this.disconnectedFromServer();
+            disconnectFromServer();
         }
     }
 }
